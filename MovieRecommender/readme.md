@@ -5,9 +5,11 @@ Este proyecto implementa un sistema de recomendaciones de películas basado en f
 S.T.A.R
 
 Situación:
+
 Los usuarios encuentran difícil elegir qué ver debido a la gran variedad de opciones. Un sistema de recomendaciones eficaz ayuda a descubrir películas que probablemente disfrutarán.
 
-Tarea: 
+Tarea:
+
 Desarrollar un sistema que proporcione recomendaciones de películas basadas en las calificaciones de usuarios con gustos similares, usando datos de calificaciones de usuarios.
 
 Acción:
@@ -21,6 +23,7 @@ Acción:
 4. Generación de Recomendaciones: A partir de la similitud calculada, el sistema sugiere películas no vistas por el usuario basándose en las calificaciones de los usuarios similares.
 
 Resultado:
+
 El sistema proporciona recomendaciones de películas personalizadas para los usuarios. Los resultados se pueden observar al solicitar recomendaciones para un usuario específico.
 
 
