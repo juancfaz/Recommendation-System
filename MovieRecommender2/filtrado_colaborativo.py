@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 
 def cargar_datos():
@@ -8,38 +7,45 @@ def cargar_datos():
     ratings = pd.read_csv('ratings.csv')
     return movies, ratings
 
-def crear_matriz_usuario_pelicula(ratings):
-    """Crear matriz de usuario-película a partir de las calificaciones."""
-    return ratings.pivot(index='userId', columns='movieId', values='rating').fillna(0)
-
-def recomendar_peliculas_colaborativas(user_id, user_movie_matrix, user_similarity, movies, top_n=5):
+def recomendar_peliculas_colaborativas(user_id, ratings, movies, top_n=5):
     """Recomendar películas utilizando filtrado colaborativo."""
-    user_similarities = user_similarity[user_id - 1]
-    similar_users_indices = np.argsort(user_similarities)[::-1][1:]  # Excluir al propio usuario
-    similar_users_ratings = user_movie_matrix.iloc[similar_users_indices]
+    # Crear matriz de utilidad
+    X = ratings.pivot(index='userId', columns='movieId', values='rating').fillna(0)
     
-    # Calcular calificación predicha
-    predicted_ratings = similar_users_ratings.mean(axis=0)
-    unrated_movies = user_movie_matrix.iloc[user_id - 1] == 0
-    predicted_ratings = predicted_ratings[unrated_movies]
+    # Calcular la similitud entre usuarios
+    user_similarity = cosine_similarity(X)
+    user_similarity_df = pd.DataFrame(user_similarity, index=X.index, columns=X.index)
+
+    # Obtener similitudes para el usuario objetivo
+    similar_users = user_similarity_df[user_id].sort_values(ascending=False)
     
-    # Ordenar y obtener películas recomendadas
-    recommended_movie_ids = predicted_ratings.sort_values(ascending=False).index.tolist()
-    recommended_movies = movies[movies['movieId'].isin(recommended_movie_ids)].iloc[:top_n]['title'].tolist()
+    # Obtener películas que el usuario ha visto
+    watched_movies = X.loc[user_id][X.loc[user_id] > 0].index
     
-    return recommended_movies
+    # Inicializar un diccionario para las puntuaciones
+    movie_scores = {}
 
-def main():
-    movies, ratings = cargar_datos()
-    user_movie_matrix = crear_matriz_usuario_pelicula(ratings)
-    user_similarity = cosine_similarity(user_movie_matrix)
+    # Sumar las puntuaciones de usuarios similares
+    for similar_user, similarity_score in similar_users.items():
+        if similar_user != user_id:  # Ignorar al usuario mismo
+            # Obtener las películas que el usuario similar ha visto y el puntaje
+            for movie_id in X.loc[similar_user][X.loc[similar_user] > 0].index:
+                if movie_id not in watched_movies:
+                    if movie_id not in movie_scores:
+                        movie_scores[movie_id] = 0
+                    movie_scores[movie_id] += similarity_score * X.loc[similar_user, movie_id]
 
-    user_id = 8
-    recommended_movies = recomendar_peliculas_colaborativas(user_id, user_movie_matrix, user_similarity, movies)
+    # Ordenar las películas recomendadas
+    recommended_movies = sorted(movie_scores.items(), key=lambda x: x[1], reverse=True)
 
-    print("Películas recomendadas (Filtrado Colaborativo) para el usuario", user_id, ":")
-    for movie in recommended_movies:
-        print(movie)
+    # Devolver las mejores N recomendaciones
+    recommended_movie_ids = [movie_id for movie_id, score in recommended_movies[:top_n]]
+    
+    return movies[movies['movieId'].isin(recommended_movie_ids)]['title']
 
-if __name__ == "__main__":
-    main()
+# Cargar datos y realizar recomendaciones
+movies, ratings = cargar_datos()
+user_id = 4  # Cambia el ID del usuario según sea necesario
+recommendations = recomendar_peliculas_colaborativas(user_id, ratings, movies, top_n=5)
+print("Recomendaciones para el usuario: ")
+print(recommendations)
