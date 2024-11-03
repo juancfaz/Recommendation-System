@@ -30,4 +30,4 @@ pip install pandas numpy scikit-learn
 
 Ejecución:
 
-python filtrado_contenido.py
+python filtrado_colaborativo.py
