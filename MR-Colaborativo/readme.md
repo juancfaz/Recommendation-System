@@ -12,9 +12,19 @@ Desarrollar un sistema que proporcione recomendaciones de películas basadas en 
 
 Acción:
 
-1. 
+1. Recolección de Datos: Se utilizan dos conjuntos de datos: movies.csv (información sobre películas) y ratings.csv (calificaciones de usuarios). ml-latest-small: https://files.grouplens.org/datasets/movielens/ml-latest-small.zip
+
+2. Se crea una matriz de calificación donde las filas representan a los usuarios y las columnas las películas, completando las celdas vacías con ceros. Esta matriz es fundamental para calcular la similitud entre los usuarios.
+
+3. Utilizando la métrica de similitud de coseno, se calcula la similitud entre los usuarios en función de las calificaciones que han dado a las películas. Cuanto más similar sea la calificación de un usuario con la de otro, mayor será el valor de similitud.
+
+4. Para un usuario específico, el sistema busca a los usuarios más similares (los que tienen una alta similitud). A continuación, se suman las calificaciones de las películas que no ha visto el usuario, ponderadas por la similitud con los usuarios similares.
+
+5. Las películas recomendadas se ordenan y se devuelven al usuario.
 
 Resultado:
+
+El sistema proporciona una lista de películas recomendadas para el usuario especificado, basadas en las preferencias de otros usuarios con gustos similares.
 
 Instalación:
 
